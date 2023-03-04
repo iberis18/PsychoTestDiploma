@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.32228.343
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PsychoTestDiploma", "PsychoTestDiploma\PsychoTestDiploma.csproj", "{AD125133-86C9-445E-BAF3-2AF61095993C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "DAL\DAL.csproj", "{F0DC90C7-288E-4E33-A595-BE8BBA5FA956}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BLL", "BLL\BLL.csproj", "{11343BDF-A92B-41F3-886B-5B25D0D7D22F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{AD125133-86C9-445E-BAF3-2AF61095993C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD125133-86C9-445E-BAF3-2AF61095993C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD125133-86C9-445E-BAF3-2AF61095993C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0DC90C7-288E-4E33-A595-BE8BBA5FA956}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0DC90C7-288E-4E33-A595-BE8BBA5FA956}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0DC90C7-288E-4E33-A595-BE8BBA5FA956}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0DC90C7-288E-4E33-A595-BE8BBA5FA956}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11343BDF-A92B-41F3-886B-5B25D0D7D22F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11343BDF-A92B-41F3-886B-5B25D0D7D22F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11343BDF-A92B-41F3-886B-5B25D0D7D22F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11343BDF-A92B-41F3-886B-5B25D0D7D22F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
