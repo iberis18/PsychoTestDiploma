@@ -23,8 +23,7 @@ namespace BLL.Operations
 
         public async Task<IEnumerable<Patient>> GetPatients()
         {
-            var patients = await db.Patients.GetAll();
-            return patients.Select(i => new Patient(i)).ToList();
+            return (await db.Patients.GetAll()).Select(i => new Patient(i)).ToList();
         }
 
         public async Task<Patient> GetPatientById(string id)
@@ -32,38 +31,60 @@ namespace BLL.Operations
             return new Patient(await db.Patients.GetItemById(id));
         }
 
+        public async Task<Patient> GetPatientByToken(string token)
+        {
+            return new Patient(await db.Patients.GetIdentity(token, null));
+        }
+
         public async Task<double> GetPatientsPagesCount()
         {
-            return await db.Patients.GetPagesCount();
+            return Math.Ceiling((double)(await db.Patients.ItemsCount()) / 10.0);
         }
 
         public async Task<IEnumerable<Patient>> GetPatientsWithCount(int pageNumber)
         {
-            var patients = await db.Patients.GetWithCount(pageNumber);
-            return patients.Select(i => new Patient(i)).ToList();
+            List<Patient> allPatients = (await db.Patients.GetAll()).Select(i => new Patient(i)).ToList();
+            int start = (pageNumber - 1) * 10;
+            int count = 10;
+            if (start + count >= allPatients.Count)
+                count = allPatients.Count - start;
+            Patient[] page = new Patient[count];
+            allPatients.CopyTo(start, page, 0, count);
+            return page;
         }
 
         public async Task<IEnumerable<Patient>> GetPatientsByName(string value)
         {
-            var patients = await db.Patients.GetByName(value);
-            return patients.Select(i => new Patient(i)).ToList();
+            return (await db.Patients.GetAll())
+                .ToList()
+                .FindAll(x => x.name.ToLower().Contains(value.ToLower()) == true)
+                .Select(x => new Patient(x));
         }
+
         public async Task<double> GetPatientsByNamePagesCount(string value)
         {
-            return await db.Patients.GetByNamePagesCount(value);
+            return Math.Ceiling((double)((await GetPatientsByName(value)).Count()) / 10.0);
         }
 
         public async Task<IEnumerable<Patient>> GetPatientsByNameWithCount(int pageNumber, string name)
         {
-            var patients = await db.Patients.GetByNameWithCount(pageNumber, name);
-            return patients.Select(i => new Patient(i)).ToList();
+            List<Patient> patients = (await GetPatientsByName(name)).ToList();
+            int start = (pageNumber - 1) * 10;
+            int count = 10;
+            if (start + count >= patients.Count)
+                count = patients.Count - start;
+            Patient[] page = new Patient[count];
+            patients.CopyTo(start, page, 0, count);
+            return page;
         }
+
         public async Task<Patient> GetPatientsResultsByTestId(string patientId, string testId)
         {
             Patient patient = await GetPatientById(patientId);
             patient.Results = patient.Results.Where(i => i.Test == testId).ToList();
             return patient;
         }
+
         public async Task<string> CreatePatient(Patient p)
         {
             string token = new TokenOperations().GenerateToken();
@@ -96,7 +117,7 @@ namespace BLL.Operations
 
         public async Task UpdatePatient(Patient p)
         {
-            await db.Patients.Create(new DAL.Models.Patient()
+            await db.Patients.Update(new DAL.Models.Patient()
             {
                 id = p.Id,
                 name = p.Name,

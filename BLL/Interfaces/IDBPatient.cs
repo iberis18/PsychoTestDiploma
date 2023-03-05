@@ -8,6 +8,7 @@ namespace BLL.Interfaces
     {
         Task<IEnumerable<Patient>> GetPatients();
         Task<Patient> GetPatientById(string id);
+        Task<Patient> GetPatientByToken(string token);
         Task<double> GetPatientsPagesCount();
         Task<IEnumerable<Patient>> GetPatientsWithCount(int pageNumber);
         Task<IEnumerable<Patient>> GetPatientsByName(string value);

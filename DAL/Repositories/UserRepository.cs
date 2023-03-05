@@ -54,63 +54,69 @@ namespace DAL.Repositories
                 }
             return user;
         }
+        public async Task<long> ItemsCount()
+        {
+            var builder = new FilterDefinitionBuilder<User>();
+            var filter = builder.Empty;
+            return await db.Users.CountDocumentsAsync(filter);
+        }
 
         //получаем количество страниц с пользователями, если на странице 10 пользователей
-        public async Task<double> GetPagesCount()
-        {
-            var builder = new FilterDefinitionBuilder<User>();
-            var filter = builder.Empty;
-            long count = await db.Users.CountDocumentsAsync(filter);
-            return Math.Ceiling((double)count / 10.0);
-        }
+        //public async Task<double> GetPagesCount()
+        //{
+        //    var builder = new FilterDefinitionBuilder<User>();
+        //    var filter = builder.Empty;
+        //    long count = await db.Users.CountDocumentsAsync(filter);
+        //    return Math.Ceiling((double)count / 10.0);
+        //}
 
         //получаем часть пользователей для пагинации
-        public async Task<IEnumerable<User>> GetWithCount(int pageNumber)
-        {
-            var builder = new FilterDefinitionBuilder<User>();
-            var filter = builder.Empty;
-            List<User> allUsers = await db.Users.Find(filter).ToListAsync();
-            int start = (pageNumber - 1) * 10;
-            int count = 10;
-            if (start + count >= allUsers.Count)
-                count = allUsers.Count - start;
-            User[] page = new User[count];
-            allUsers.CopyTo(start, page, 0, count);
-            return page;
-        }
+        //public async Task<IEnumerable<User>> GetWithCount(int pageNumber)
+        //{
+        //    var builder = new FilterDefinitionBuilder<User>();
+        //    var filter = builder.Empty;
+        //    List<User> allUsers = await db.Users.Find(filter).ToListAsync();
+        //    int start = (pageNumber - 1) * 10;
+        //    int count = 10;
+        //    if (start + count >= allUsers.Count)
+        //        count = allUsers.Count - start;
+        //    User[] page = new User[count];
+        //    allUsers.CopyTo(start, page, 0, count);
+        //    return page;
+        //}
 
         //фильтрация пользователей по имени
-        public async Task<IEnumerable<User>> GetByName(string value)
-        {
-            var builder = new FilterDefinitionBuilder<User>();
-            var filter = builder.Empty;
-            var allUsers = await db.Users.Find(filter).ToListAsync();
-            return allUsers.FindAll(x => x.name.ToLower().Contains(value.ToLower()) == true);
-        }
+        //public async Task<IEnumerable<User>> GetByName(string value)
+        //{
+        //    var builder = new FilterDefinitionBuilder<User>();
+        //    var filter = builder.Empty;
+        //    var allUsers = await db.Users.Find(filter).ToListAsync();
+        //    return allUsers.FindAll(x => x.name.ToLower().Contains(value.ToLower()) == true);
+        //}
 
         //получаем количество страниц с пользователями c фильтрацией по имени, если на странице 10 пользователей
-        public async Task<double> GetByNamePagesCount(string value)
-        {
-            var users = await GetByName(value);
-            users = users.ToList();
-            long count = users.Count();
-            return Math.Ceiling((double)count / 10.0);
-        }
+        //public async Task<double> GetByNamePagesCount(string value)
+        //{
+        //    var users = await GetByName(value);
+        //    users = users.ToList();
+        //    long count = users.Count();
+        //    return Math.Ceiling((double)count / 10.0);
+        //}
 
         //получаем часть пользователей c фильтрацией по имени для пагинации
-        public async Task<IEnumerable<User>> GetByNameWithCount(int pageNumber, string name)
-        {
-            List<User> users = new List<User>();
-            var u = await GetByName(name);
-            users = u.ToList();
-            int start = (pageNumber - 1) * 10;
-            int count = 10;
-            if (start + count >= users.Count)
-                count = users.Count - start;
-            User[] page = new User[count];
-            users.CopyTo(start, page, 0, count);
-            return page;
-        }
+        //public async Task<IEnumerable<User>> GetByNameWithCount(int pageNumber, string name)
+        //{
+        //    List<User> users = new List<User>();
+        //    var u = await GetByName(name);
+        //    users = u.ToList();
+        //    int start = (pageNumber - 1) * 10;
+        //    int count = 10;
+        //    if (start + count >= users.Count)
+        //        count = users.Count - start;
+        //    User[] page = new User[count];
+        //    users.CopyTo(start, page, 0, count);
+        //    return page;
+        //}
 
         //получаем пользователя по id
         public async Task<User> GetItemById(string id)

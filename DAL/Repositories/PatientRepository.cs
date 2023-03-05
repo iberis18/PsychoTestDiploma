@@ -27,79 +27,86 @@ namespace DAL.Repositories
         }
 
         //получаем пациента по токену
-        public async Task<Patient> GetIdentity(string token, string value = null)
+        public async Task<Patient> GetIdentity(string token, string value)
         {
             return await db.Patients.Find(new BsonDocument("token", token)).FirstOrDefaultAsync();
         }
 
-        //получаем количество страниц с пациентами, если на странице 10 пациентов
-        public async Task<double> GetPagesCount()
+        public async Task<long> ItemsCount()
         {
             var builder = new FilterDefinitionBuilder<Patient>();
             var filter = builder.Empty;
-            long count = await db.Patients.CountDocumentsAsync(filter);
-            return Math.Ceiling((double)count / 10.0);
+            return await db.Patients.CountDocumentsAsync(filter);
         }
+
+        //получаем количество страниц с пациентами, если на странице 10 пациентов
+        //public async Task<double> GetPagesCount()
+        //{
+        //    var builder = new FilterDefinitionBuilder<Patient>();
+        //    var filter = builder.Empty;
+        //    long count = await db.Patients.CountDocumentsAsync(filter);
+        //    return Math.Ceiling((double)count / 10.0);
+        //}
 
         //получаем часть пациентов для пагинации
-        public async Task<IEnumerable<Patient>> GetWithCount(int pageNumber)
-        {
-            var builder = new FilterDefinitionBuilder<Patient>();
-            var filter = builder.Empty;
-            List<Patient> allPatients = await db.Patients.Find(filter).ToListAsync();
-            int start = (pageNumber - 1) * 10;
-            int count = 10;
-            if (start + count >= allPatients.Count)
-                count = allPatients.Count - start;
-            Patient[] page = new Patient[count];
-            allPatients.CopyTo(start, page, 0, count);
-            return page;
-        }
+        //public async Task<IEnumerable<Patient>> GetWithCount(int pageNumber)
+        //{
+        //    var builder = new FilterDefinitionBuilder<Patient>();
+        //    var filter = builder.Empty;
+        //    List<Patient> allPatients = await db.Patients.Find(filter).ToListAsync();
+        //    int start = (pageNumber - 1) * 10;
+        //    int count = 10;
+        //    if (start + count >= allPatients.Count)
+        //        count = allPatients.Count - start;
+        //    Patient[] page = new Patient[count];
+        //    allPatients.CopyTo(start, page, 0, count);
+        //    return page;
+        //}
 
         //фильтрация по имени
-        public async Task<IEnumerable<Patient>> GetByName(string value)
-        {
-            var builder = new FilterDefinitionBuilder<Patient>();
-            var filter = builder.Empty;
-            var allPatients = await db.Patients.Find(filter).ToListAsync();
-            return allPatients.FindAll(x => x.name.ToLower().Contains(value.ToLower()) == true);
-        }
+        //public async Task<IEnumerable<Patient>> GetByName(string value)
+        //{
+        //    var builder = new FilterDefinitionBuilder<Patient>();
+        //    var filter = builder.Empty;
+        //    var allPatients = await db.Patients.Find(filter).ToListAsync();
+        //    return allPatients.FindAll(x => x.name.ToLower().Contains(value.ToLower()) == true);
+        //}
 
         //получаем количество страниц с пациентами c фильтрацией по имени, если на странице 10 пациентов
-        public async Task<double> GetByNamePagesCount(string value)
-        {
-            var patients = await GetByName(value);
-            patients = patients.ToList();
-            long count = patients.Count();
-            return Math.Ceiling((double)count / 10.0);
-        }
+        //public async Task<double> GetByNamePagesCount(string value)
+        //{
+        //    var patients = await GetByName(value);
+        //    patients = patients.ToList();
+        //    long count = patients.Count();
+        //    return Math.Ceiling((double)count / 10.0);
+        //}
 
         //получаем часть пациентов c фильтрацией по имени для пагинации
-        public async Task<IEnumerable<Patient>> GetByNameWithCount(int pageNumber, string name)
-        {
-            List<Patient> patients = new List<Patient>();
-            var p = await GetByName(name);
-            patients = p.ToList();
-            int start = (pageNumber - 1) * 10;
-            int count = 10;
-            if (start + count >= patients.Count)
-                count = patients.Count - start;
-            Patient[] page = new Patient[count];
-            patients.CopyTo(start, page, 0, count);
-            return page;
-        }
+        //public async Task<IEnumerable<Patient>> GetByNameWithCount(int pageNumber, string name)
+        //{
+        //    List<Patient> patients = new List<Patient>();
+        //    var p = await GetByName(name);
+        //    patients = p.ToList();
+        //    int start = (pageNumber - 1) * 10;
+        //    int count = 10;
+        //    if (start + count >= patients.Count)
+        //        count = patients.Count - start;
+        //    Patient[] page = new Patient[count];
+        //    patients.CopyTo(start, page, 0, count);
+        //    return page;
+        //}
 
         //фильтрация результатов для статистики по id теста
-        public async Task<Patient> GetPatientsResultsByTestId(string patientId, string testId)
-        {
-            Patient patient = await GetItemById(patientId);
-            List<PatientResult> r = new List<PatientResult>();
-            foreach (PatientResult result in patient.results)
-                if (result.test == testId)
-                    r.Add(result);
-            patient.results = r;
-            return patient;
-        }
+        //public async Task<Patient> GetPatientsResultsByTestId(string patientId, string testId)
+        //{
+        //    Patient patient = await GetItemById(patientId);
+        //    List<PatientResult> r = new List<PatientResult>();
+        //    foreach (PatientResult result in patient.results)
+        //        if (result.test == testId)
+        //            r.Add(result);
+        //    patient.results = r;
+        //    return patient;
+        //}
 
         //получаем пациента по id
         public async Task<Patient> GetItemById(string id)

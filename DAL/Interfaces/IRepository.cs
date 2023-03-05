@@ -12,11 +12,12 @@ namespace DAL.Interfaces
         Task Create(T item); // добавить элемент 
         Task Update(T item); // обновить элемент 
         Task Remove(string id); // удалить элемент 
-        Task<double> GetPagesCount(); //получаем количество страниц
-        Task<IEnumerable<T>> GetWithCount(int pageNumber); //получаем часть элементов для пагинации
-        Task<IEnumerable<T>> GetByName(string value);     //фильтрация пользователей по имени
-        Task<double> GetByNamePagesCount(string value); //получаем количество страниц c фильтрацией по имени
-        Task<IEnumerable<T>> GetByNameWithCount(int pageNumber, string name); //получаем часть элементов c фильтрацией по имени для пагинации
-        Task<T> GetIdentity(string value1, string value2);
+        Task<long> ItemsCount(); 
+        //Task<double> GetPagesCount(); //получаем количество страниц
+        //Task<IEnumerable<T>> GetWithCount(int pageNumber); //получаем часть элементов для пагинации
+        //Task<IEnumerable<T>> GetByName(string value);     //фильтрация пользователей по имени
+        //Task<double> GetByNamePagesCount(string value); //получаем количество страниц c фильтрацией по имени
+        //Task<IEnumerable<T>> GetByNameWithCount(int pageNumber, string name); //получаем часть элементов c фильтрацией по имени для пагинации
+        Task<T> GetIdentity (string value1, string value2);
     }
 }
