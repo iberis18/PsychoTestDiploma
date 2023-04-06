@@ -11,11 +11,11 @@ using MongoDB.Driver;
 
 namespace BLL.Operations
 {
-    public class DBUserOperation : IDBUser
+    public class UserOperations : IUser
     {
         IUnitOfWork db; //репозиторий
 
-        public DBUserOperation(IUnitOfWork db)
+        public UserOperations(IUnitOfWork db)
         {
             this.db = db;
         }

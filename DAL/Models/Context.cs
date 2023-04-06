@@ -27,8 +27,8 @@ namespace DAL.Models
             // обращаемся к коллекциям
             Users = database.GetCollection<User>("Users");
             Patients = database.GetCollection<Patient>("Patients");
-            Tests = database.GetCollection<Test>("tests");
-            TestsBson = database.GetCollection<BsonDocument>("tests");
+            Tests = database.GetCollection<Test>("Tests");
+            TestsBson = database.GetCollection<BsonDocument>("Tests");
             NormsBson = database.GetCollection<BsonDocument>("Norms");
         }
     }

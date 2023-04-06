@@ -11,11 +11,11 @@ using MongoDB.Driver;
 
 namespace BLL.Operations
 {
-    public class DBPatientOperation : IDBPatient
+    public class PatientOperations : IPatient
     {
         IUnitOfWork db; //репозиторий
 
-        public DBPatientOperation(IUnitOfWork db)
+        public PatientOperations(IUnitOfWork db)
         {
             this.db = db;
         }
@@ -33,7 +33,10 @@ namespace BLL.Operations
 
         public async Task<Patient> GetPatientByToken(string token)
         {
-            return new Patient(await db.Patients.GetIdentity(token, null));
+            DAL.Models.Patient p = await db.Patients.GetIdentity(token, null);
+            if (p != null)
+                return new Patient(p);
+            else return null;
         }
 
         public async Task<double> GetPatientsPagesCount()
@@ -84,6 +87,21 @@ namespace BLL.Operations
             patient.Results = patient.Results.Where(i => i.Test == testId).ToList();
             return patient;
         }
+
+        //получаем все назначенные пациенту тесты 
+        public async Task<IEnumerable<Test>> GetTestsByPatientToken(Patient patient)
+        {
+            List<Test> documents = (await db.Tests.GetAll()).Select(i => new Test(i)).ToList();
+            List<Test> tests = new List<Test>();
+
+            if (patient.Tests != null)
+                foreach (string idTest in patient.Tests)
+                    foreach (var doc in documents)
+                        if (idTest == doc.Id)
+                            tests.Add(doc);
+            return tests;
+        }
+
 
         public async Task<string> CreatePatient(Patient p)
         {

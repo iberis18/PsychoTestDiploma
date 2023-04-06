@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using DAL.Interfaces;
@@ -26,19 +27,14 @@ namespace DAL.Repositories
         //получаем краткий список всех тестов в формате id-название-заголовок-инструкция
         public async Task<IEnumerable<Test>> GetAll()
         {
-            var documents = await db.TestsBson.Find(new BsonDocument()).ToListAsync();
-            List<Test> tests = new List<Test>();
-            foreach (BsonDocument doc in documents)
-            {
-                tests.Add(new Test
+            return (await db.TestsBson.Find(new BsonDocument()).ToListAsync())
+                .Select(i => new Test()
                 {
-                    name = doc["IR"]["name"]["#text"].AsString,
-                    id = doc["_id"].AsObjectId.ToString(),
-                    title = doc["IR"]["title"]["#text"].AsString,
-                    instruction = doc["instruction"]["#text"].AsString
+                    name = i["IR"]["Name"]["#text"].AsString,
+                    id = i["_id"].AsObjectId.ToString(),
+                    title = i["IR"]["Title"]["#text"].AsString,
+                    instruction = i["Instruction"]["#text"].AsString
                 });
-            }
-            return tests;
         }
 
         //получаем тест по id
@@ -77,142 +73,55 @@ namespace DAL.Repositories
             return json;
         }
 
-        //получаем все назначенные пациенту тесты 
-        public async Task<IEnumerable<Test>> GetTestsByPatientToken(Patient patient)
+        public async Task<BsonDocument> GetBsonItemByIRId(string id)
         {
-            List<Test> tests = new List<Test>();
-            var documents = await db.TestsBson.Find(new BsonDocument()).ToListAsync();
-            if (patient.tests != null)
-            {
-                foreach (string idTest in patient.tests)
-                {
-                    foreach (BsonDocument doc in documents)
-                    {
-                        if (idTest == doc["_id"].AsObjectId.ToString())
-                        {
-                            tests.Add(new Test
-                            {
-                                name = doc["IR"]["name"]["#text"].AsString,
-                                id = doc["_id"].AsObjectId.ToString(),
-                                title = doc["IR"]["title"]["#text"].AsString,
-                                instruction = doc["instruction"]["#text"].AsString
-                            });
-                        }
-                    }
-                }
-            }
-            return tests;
+            //return await db.TestsBson.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
+            return await db.TestsBson.Find(new BsonDocument("IR.ID", id)).FirstOrDefaultAsync();
         }
 
-        //Импорт теста
-        public async Task<string> ImportTestFile(string file)
+        public async Task<BsonDocument> GetBsonItemById(string id)
         {
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(file);
-            var json = Newtonsoft.Json.JsonConvert.SerializeXmlNode(xmlDoc, Newtonsoft.Json.Formatting.None, true);
-            var jObj = JObject.Parse(json);
+            return await db.TestsBson.Find(new BsonDocument("_id", new ObjectId(id))).FirstOrDefaultAsync();
+        }
 
-            var test = await db.TestsBson.Find(new BsonDocument("IR.ID", jObj["IR"]["ID"].ToString())).FirstOrDefaultAsync();
-            if (test == null)
-            {
-                int i = 0;
-                if (jObj["Questions"] != null && jObj["Questions"].ToString() != "")
-                    foreach (var question in jObj["Questions"]["item"])
-                    {
-                        question["Question_id"] = i;
-                        i++;
 
-                        //если вопрос только с текстом — Question_Type = 0, если с изображением Question_Type = 1
-                        if (question["ImageFileName"] != null)
-                            question["Question_Type"] = 1;
-                        else
-                            question["Question_Type"] = 0;
+        //получаем все назначенные пациенту тесты 
+        //public async Task<IEnumerable<Test>> GetTestsByPatientToken(Patient patient)
+        //{
+        //    List<Test> tests = new List<Test>();
+        //    var documents = await db.TestsBson.Find(new BsonDocument()).ToListAsync();
+        //    if (patient.tests != null)
+        //    {
+        //        foreach (string idTest in patient.tests)
+        //        {
+        //            foreach (BsonDocument doc in documents)
+        //            {
+        //                if (idTest == doc["_id"].AsObjectId.ToString())
+        //                {
+        //                    tests.Add(new Test
+        //                    {
+        //                        name = doc["IR"]["name"]["#text"].AsString,
+        //                        id = doc["_id"].AsObjectId.ToString(),
+        //                        title = doc["IR"]["title"]["#text"].AsString,
+        //                        instruction = doc["instruction"]["#text"].AsString
+        //                    });
+        //                }
+        //            }
+        //        }
+        //    }
+        //    return tests;
+        //}
 
-                        //если вопрос c выбором одного отета — Question_Choice = 1, если с вводом своего — Question_Choice = 0
-                        if (question["TypeQPanel"] != null)
-                        {
-                            if (question["TypeQPanel"].ToString() == "2" || question["AnsString_Num"] != null ||
-                                        question["AnsString_ExanineAnsMethod"] != null || question["Ans_CheckUpperCase"] != null)
-                            {
-                                question["Question_Choice"] = 0;
-                                if (question["Answers"]["item"] is JArray)
-                                    foreach (var answer in question["Answers"]["item"])
-                                        answer["Answer_Type"] = 1;
-                                else
-                                {
-                                    JArray arr = new JArray();
-                                    question["Answers"]["item"]["Answer_Type"] = 1;
-                                    arr.Add(question["Answers"]["item"]);
-                                    question["Answers"]["item"] = arr;
-                                }
-
-                            }
-                            else
-                            {
-                                question["Question_Choice"] = 1;
-                                if (question["Answers"]["item"] is JArray)
-                                    foreach (var answer in question["Answers"]["item"])
-                                        answer["Answer_Type"] = 0;
-                                else
-                                {
-                                    JArray arr = new JArray();
-                                    question["Answers"]["item"]["Answer_Type"] = 0;
-                                    arr.Add(question["Answers"]["item"]);
-                                    question["Answers"]["item"] = arr;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            question["Question_Choice"] = 1;
-                            if (question["Answers"]["item"] is JArray)
-                                foreach (var answer in question["Answers"]["item"])
-                                    answer["Answer_Type"] = 0;
-                            else
-                            {
-                                JArray arr = new JArray();
-                                question["Answers"]["item"]["Answer_Type"] = 0;
-                                arr.Add(question["Answers"]["item"]);
-                                question["Answers"]["item"] = arr;
-                            }
-                        }
-                        int j = 0;
-                        if (question["Answers"]["item"] is JArray)
-                            foreach (var answer in question["Answers"]["item"])
-                            {
-                                answer["Answer_id"] = j;
-                                j++;
-                                //если ответ это текст — Answer_Type = 0, если это поле для ввода — Answer_Type = 1, если изображение — Answer_Type = 2;
-                                if (answer["ImageFileName"] != null)
-                                    answer["Answer_Type"] = 2;
-                            }
-                        else
-                        {
-                            JArray arr = new JArray();
-                            question["Answers"]["item"]["Answer_id"] = 0;
-                            if (question["Answers"]["item"]["ImageFileName"] != null)
-                                question["Answers"]["item"]["Answer_Type"] = 2;
-                            arr.Add(question["Answers"]["item"]);
-                            question["Answers"]["item"] = arr;
-                        }
-                    }
-                var document = BsonDocument.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(jObj));
-                await db.TestsBson.InsertOneAsync(document);
-                return jObj["IR"]["ID"].ToString();
-            }
-            else return null;
+        //Импорт теста
+        public async Task ImportTestFile(string file)
+        {
+            await db.TestsBson.InsertOneAsync(BsonDocument.Parse(file));
         }
 
         //Импорт норм
-        public async Task ImportNormFile(string file, string testId)
+        public async Task ImportNormFile(string file)
         {
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(file);
-            var json = Newtonsoft.Json.JsonConvert.SerializeXmlNode(xmlDoc);
-            var jObj = JObject.Parse(json);
-            jObj["main"]["groups"]["item"]["id"] = testId;
-            var document = BsonDocument.Parse(Newtonsoft.Json.JsonConvert.SerializeObject(jObj));
-            await db.NormsBson.InsertOneAsync(document);
+            await db.NormsBson.InsertOneAsync(BsonDocument.Parse(file));
         }
 
         //получаем список id всех норм
@@ -225,6 +134,11 @@ namespace DAL.Repositories
                 norms.Add(doc["_id"].AsObjectId.ToString());
             }
             return norms;
+        }
+
+        public async Task<BsonDocument> GetNormByIRId(string id)
+        {
+            return await db.NormsBson.Find(new BsonDocument("main.groups.item.id", id)).FirstOrDefaultAsync();
         }
 
         // удаление теста вместе с нормой и изображениями

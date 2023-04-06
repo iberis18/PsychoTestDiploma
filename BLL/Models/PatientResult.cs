@@ -32,7 +32,7 @@ namespace BLL.Models
             public int? GradationNumber { get; set; }
             public string? Interpretation { get; set; }
 
-
+            public Scale(){}
             public Scale(DAL.Models.PatientResult.Scale item)
             {
                 IdTestScale = item.idTestScale;

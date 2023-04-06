@@ -4,7 +4,7 @@ using BLL.Models;
 
 namespace BLL.Interfaces
 {
-    public interface IDBUser
+    public interface IUser
     {
         Task<IEnumerable<User>> GetUsers();
         Task<User> GetIdentityUsers(string username, string password);

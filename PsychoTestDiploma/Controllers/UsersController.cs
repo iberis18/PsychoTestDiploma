@@ -11,16 +11,16 @@ using User = BLL.Models.User;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace PsychoTestWeb.Controllers
+namespace PsychoTestDiploma.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly IDBUser db;
+        private readonly IUser db;
         public UsersController(Context context)
         {
-            db = new DBUserOperation(new DBUnitOfWork(context));
+            db = new UserOperations(new DBUnitOfWork(context));
         }
 
         //получение всех пользователей

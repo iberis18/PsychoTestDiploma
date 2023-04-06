@@ -12,16 +12,16 @@ using Patient = BLL.Models.Patient;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace PsychoTestWeb.Controllers
+namespace PsychoTestDiploma.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class PatientsController : ControllerBase
     {
-        private readonly IDBPatient db;
+        private readonly IPatient db;
         public PatientsController(Context context)
         {
-            db = new DBPatientOperation(new DBUnitOfWork(context));
+            db = new PatientOperations(new DBUnitOfWork(context));
         }
 
         //получение всех пациентов

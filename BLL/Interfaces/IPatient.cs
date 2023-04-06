@@ -4,7 +4,7 @@ using BLL.Models;
 
 namespace BLL.Interfaces
 {
-    public interface IDBPatient
+    public interface IPatient
     {
         Task<IEnumerable<Patient>> GetPatients();
         Task<Patient> GetPatientById(string id);
@@ -15,6 +15,7 @@ namespace BLL.Interfaces
         Task<double> GetPatientsByNamePagesCount(string value);
         Task<IEnumerable<Patient>> GetPatientsByNameWithCount(int pageNumber, string name);
         Task<Patient> GetPatientsResultsByTestId(string patientId, string testId);
+        Task<IEnumerable<Test>> GetTestsByPatientToken(Patient patient);
         Task<string> CreatePatient(Patient p);
         Task UpdatePatient(Patient p);
         Task RemovePatient(string id);

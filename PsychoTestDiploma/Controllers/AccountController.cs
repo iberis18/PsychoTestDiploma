@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using BLL.Authorisation;
 using BLL.Operations;
 using DAL.Models;
@@ -14,15 +15,15 @@ namespace PsychoTestDiploma.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly DBPatientOperation db;
+        private readonly UserOperations db;
         public AccountController(Context context)
         {
-            db = new DBPatientOperation(new DBUnitOfWork(context));
+            db = new UserOperations(new DBUnitOfWork(context));
         }
         [HttpPost("/authentication")]
-        public IActionResult Token([FromBody] BLL.Models.User user)
+        public async Task<IActionResult> Token([FromBody] BLL.Models.User user)
         {
-            var identity = GetIdentity(user.Login, user.Password);
+            var identity = await GetIdentity(user.Login, user.Password);
             if (identity == null)
             {
                 return BadRequest(new { errorText = "Invalid username or password." });
@@ -48,19 +49,19 @@ namespace PsychoTestDiploma.Controllers
             return Json(response);
         }
 
-        private ClaimsIdentity GetIdentity(string username, string password)
+        private async Task<ClaimsIdentity> GetIdentity(string username, string password)
         {
-            //BLL.Models.User person = db.GetIdentityUsers(username, password);
-            //if (person != null)
-            //{
-            //    var claims = new List<Claim>
-            //    {
-            //        new Claim(ClaimsIdentity.DefaultNameClaimType, person.login),
-            //        new Claim(ClaimsIdentity.DefaultRoleClaimType, person.role)
-            //    };
-            //    ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "token", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
-            //    return claimsIdentity;
-            //}
+            BLL.Models.User person = await db.GetIdentityUsers(username, password);
+            if (person != null)
+            {
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, person.Login),
+                    new Claim(ClaimsIdentity.DefaultRoleClaimType, person.Role)
+                };
+                ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, "token", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+                return claimsIdentity;
+            }
 
             // если пользователя не найдено
             return null;
